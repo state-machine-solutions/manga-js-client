@@ -78,14 +78,33 @@ Message is the most quickly method to send a message.
 
 ## addListener
 
+| Just to socket.io clients.
+
+Cause you're connected so is better to recive data when that changes than need to keep asking every time to check it, are you agree?
+Thinking about it `manga-js` create addListener with the same objective than `actions in C#` or `Signals` events.
+
+You can add listener to property when that changes or are setted.
+
 ```
-{listener:{path, property}, handler:{method}}
+{
+    listener:
+        {
+            property,
+            updateMode
+        },
+    handler:
+        {
+            method
+        }
+}
 ```
+
+#### example:
 
 ```
 socket.emit("addListener", {
         listener:{
-            property:"scene.bodies.0.alarm",
+            property:"users.id_23423.nickName",
             updateMode:"onChange"
         },
         handler:{
@@ -96,24 +115,39 @@ socket.emit("addListener", {
     }) ;
 ```
 
-### updateMode:
+### listener.updateMode:
 
-    `onChange` : pode ser "onSet" se quiser ser avisado sempre que o valor for setado
+    updateMode is the trigger to start events to send message to the listener
 
-que é quando a quantidade de itens no array muda
-"onChange|onSet|onInterval|onChangeLength"
-onInterval é bizarro, ele fica te chamando a cada X tempo, independente do que aconteça, evite usar por enquanto
-info:{
-"listener":{
-"property":"scenario.weather.barometer.pressure",
-"updateMode":"onChange|onSet|onInterval|onChangeLength",
-"frequency":1000
-},
-"handler":{
-"method":"myMethod",
-"filter":{
-"mode":"full|changed",//em teoria o changed te dá so os dados que mudou, a testar
-"data":"scenario.weather"//esse aqui depois explico, vou jantar rs
+
+    `onChange|onSet|onInterval|onChangeLength`
+
+    `onChange` : when the value change something
+    `onSet` : when the value is setted, changing or not
+    `onInterval` : every time interval
+    `onChangeLength` : when some object or array change the length property if it exists
+
+### handler.method
+
+    Is the method in client-side socket connection that will be called after event is trigger
+
+### handler.filter
+
+    Filter is used to handle data before is sent to listener client
+
+```
+{
+    "listener":{
+        "property":"user.id_23423.birthday",
+        "updateMode":"onInterval",
+        "frequency":1000
+    },
+    "handler":{
+        "method":"myMethod",
+        "filter":{
+            "mode":"full|change", //if change, get just data that was changed, if full, get full data
+            "data":"user.id_23423.profile" //data to recive after listener is trigger
+        }
+    }
 }
-}
-}
+```
