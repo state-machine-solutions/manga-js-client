@@ -3,12 +3,19 @@ const Signal = require("signals") ;
 function MangaClient(p_config){
     let config = p_config ;
     let socket = require('socket.io-client')(config.ip+':'+config.port);
-    
+    //making socket property public
+    this.socket = socket;
     var me = this ;
     this.isConnected = false ;
     this.appName = config.appName;
     this.onConnect = new Signal() ;
     this.onDisconnect = new Signal() ;
+    if(config.auth){
+        this.onConnect.add(()=>{
+            const { username, password} = config.auth;
+            socket.emit('authentication', {username, password})
+        })
+    }
     function emit(method, ob, callback){
         if(!me.isConnected){
             return false;
